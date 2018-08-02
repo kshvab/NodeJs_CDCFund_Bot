@@ -19,13 +19,13 @@ function fPokazMainButton(msg){
 	
 	switch (msg.text) {
   		case '/MENU':
-    		topMes = "🔘 МЕНЮ 🔘";
+    		topMes = "🔘 MENU 🔘";
     		break;
   		case undefined:
-   			topMes = "💬 Ok, зараз усьо буде...";
+   			topMes = "💬 Ok, a minute...";
     		break;
   		case 'Відміна':
-   			topMes = "💬 Даремно відмовився, тепер фіг узнаєш...Аха)";
+   			topMes = "💬 Ok, as you wish.";
     		break;			
   		default:
     		topMes = "💬 Sorry, no time for chatting, need to manage yor funds 😎";
@@ -60,8 +60,8 @@ function fPokazMenu(msg){
   var keyboardStr = JSON.stringify({
       inline_keyboard: [
         [
-      	    {text:'💰 Статус фонду',callback_data:'1'},
-        	{text:'📈 Курси валю',callback_data:'2'},
+      	    {text:'💰 Fund',callback_data:'1'},
+        	{text:'📈 Currencies',callback_data:'2'},
 			{text:'♥️ My Info',callback_data:'3'}			
         ]
 		
@@ -144,8 +144,15 @@ function fFundStatus(chatId){
 		//console.log('body:', body); // Print the HTML for the Google homepage.
 		var myObj=JSON.parse(body);
 		
-		
-		bot.sendMessage(chatId, "💬 СТАТУС ФОНДУ\n🔸 Капіталізація: $"+ myObj.fundCap + '\n' + "🔸 Зміна вартості CDCt: " + myObj.CDCtHistoryGrowth + '%\n' + "🔸 Ціна CDCt: $" + myObj.cdcTokenPrice);
+		let msgText;
+
+		msgText = "💬 FUND\n";
+		msgText += "💰 Capitalization: $" + myObj.fundCap + "\n";
+		msgText += "💎 Emission CDCt: " + myObj.cdcTokenIssued + "\n";
+		msgText += "🔸 Price CDCt: $" + myObj.cdcTokenPrice+ "\n";
+		msgText += "🔸 Сhanging CDCt: " + myObj.CDCtHistoryGrowth + "%";
+
+		bot.sendMessage(chatId, msgText);
 		
 	});
 	//---------------------/REQUEST-----------------------------------------8
@@ -170,7 +177,14 @@ function fKursyValyut(chatId){
 			E1,
 			E2,
 			Z1,
-			Z2;
+			Z2,
+			Eos1,
+			Eos2,
+			Xrp1,
+			Xrp2,
+			Iota1,
+			Iota2;
+
 		
 		if (myObj.Bitcoin.change24h>0){
 			B1="🎾 BTC: $";
@@ -199,8 +213,44 @@ function fKursyValyut(chatId){
 			Z2=' (';
 		};
 		
-		
-		bot.sendMessage(chatId, "💬 КУРС ВАЛЮТ\n" + B1 + myObj.Bitcoin.priceUSD + B2 + myObj.Bitcoin.change24h + ')\n' + E1 + myObj.Ethereum.priceUSD + E2 + myObj.Ethereum.change24h + ')\n' + Z1 + myObj.Zcash.priceUSD + Z2 + myObj.Zcash.change24h +')');
+		if (myObj.EOS.change24h>0){
+			Eos1="🎾 EOS: $";
+			Eos2=' (+';
+		}
+		else {
+			Eos1="🔴 EOS: $";
+			Eos2=' (';
+		};
+
+		if (myObj.XRP.change24h>0){
+			Xrp1="🎾 XRP: $";
+			Xrp2=' (+';
+		}
+		else {
+			Xrp1="🔴 XRP: $";
+			Xrp2=' (';
+		};
+
+		if (myObj.IOTA.change24h>0){
+			Iota1="🎾 IOTA: $";
+			Iota2=' (+';
+		}
+		else {
+			Iota1="🔴 IOTA: $";
+			Iota2=' (';
+		};
+
+		var msgText;
+
+		msgText = "💬 Currencies\n";
+		msgText += B1 + myObj.Bitcoin.priceUSD + B2 + myObj.Bitcoin.change24h + ')\n';
+		msgText += E1 + myObj.Ethereum.priceUSD + E2 + myObj.Ethereum.change24h + ')\n';
+		msgText += Z1 + myObj.Zcash.priceUSD + Z2 + myObj.Zcash.change24h +')\n';
+		msgText += Eos1 + myObj.EOS.priceUSD + Eos2 + myObj.EOS.change24h +')\n';
+		msgText += Xrp1 + myObj.XRP.priceUSD + Xrp2 + myObj.XRP.change24h +')\n';
+		msgText += Iota1 + myObj.IOTA.priceUSD + Iota2 + myObj.IOTA.change24h +')';
+
+		bot.sendMessage(chatId, msgText);
 		
 
 	});
@@ -214,13 +264,13 @@ var option = {
         "reply_markup": {
             "one_time_keyboard": true,
             "keyboard": [[{
-                text: "Надати номер телефону",
+                text: "Сonfirm a phone number",
                 request_contact: true
-            }], ["Відміна"]]
+            }], ["Сancel"]]
         }
     }
 	
-bot.sendMessage(chatId, "💬 Щоб перевірити Вашу участь у фонді, мені потрібен Ваш номер телефону. Натисніть на кнопку для підтвердження:", option).then(() => {
+bot.sendMessage(chatId, "💬 To verify your participation in the fund, I need your phone number. Click the button to confirm:", option).then(() => {
       
     })
 
@@ -251,29 +301,17 @@ bot.on("contact",(msg)=>{
 		
 		
 		if (myObj[usrRealPhNumber] == undefined) {
-			bot.sendMessage(msg.chat.id, "💬 Нажаль, Ваш номер телефону (" + usrRealPhNumber + ") не зареєстровано в базі. Функція персональної інформації для цього номеру недоступна, зверніться до адміністратора!");
+			bot.sendMessage(msg.chat.id, "💬 Unfortunately, your phone number (" + usrRealPhNumber + ") is not registered in the database. The function of personal information for this number is not available, contact the administrator!");
 		}
 		
 		else {
 			var usrBal=Number(myObj[usrRealPhNumber]);
-			bot.sendMessage(msg.chat.id, "💬 Ваш номер телефону (" + usrRealPhNumber + ") пройшов перевірку.\n🔔 Ваш поточний баланс становить $" + usrBal.toFixed(2));
+			bot.sendMessage(msg.chat.id, "💬 Your phone number (" + usrRealPhNumber + ") has been verified.\n🔔 Your current balance is $" + usrBal.toFixed(2));
 		}
 
 	});
 	//---------------------/REQUEST------------------------------------------
 	
 })
-
-
-
-	//console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" + myObj['sd']);
-	//console.log("777777777777888888888777777777" + msg.contact.phone_number);
-	//console.log('msg******->   ' + JSON.stringify(msg));
-  	//console.log("777777777777msg.text777777777--->" + msg.text + "<--->" + topMes + "<--->");
-	//console.log('qqqqq   ' + msg.data);
-	//console.log('msg******->   ' + JSON.stringify(msg));
-	//console.log('msg.message.chat.id: ' + msg.message.chat.id);
-  	//console.log('msg.message.chat.first_name: ' + msg.message.chat.first_name);
-  	//console.log('msg.data: ' + msg.data);
 
 

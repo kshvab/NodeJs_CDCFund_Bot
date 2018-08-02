@@ -1,0 +1,4 @@
+v 2.00 2018/08/02
+        - English translation
+        - Added EOS, XRP, IOTA currencies
+        - The size of the fund's token emission is added
