@@ -1,0 +1,349 @@
+<script src="/k8jsfiles/diagramma/diagrammalib.js"></script>
+
+<div class="row">
+    <div class="col-md-6">
+        <br><br>
+        <table style="width: 100%; height: 238px; vertical-align: middle;" cellspacing="0" cellpadding="0">
+            <tbody>
+                <tr>
+                    <td><strong><span style="font-size: 20pt;">Капитализация</span></strong></td>
+                    <td><strong><span id="fundCap" style="font-size: 20pt;"><img src="images/fundpictures/loadinganimation.gif" alt="loadinganimation" /></span></strong></td>
+                </tr>
+                <tr>
+                    <td><span style="font-size: 20pt;">Рост токена в USD</span></td>
+                    <td><span id="CDCtHistoryGrowth" style="font-size: 20pt;"> </span></td>
+                </tr>
+                <tr>
+                    <td><span style="font-size: 14pt;">Эмитировано CDC token</span></td>
+                    <td><span id="cdcTokenIssued" style="font-size: 14pt;"></span></td>
+                </tr>
+                <tr>
+                    <td><span style="font-size: 14pt;">Цена CDC token</span></td>
+                    <td><span id="cdcTokenPrice" style="font-size: 14pt;"></span></td>
+                </tr>
+                <tr>
+                    <td><em><span id="at" style="font-size: 10pt;"> </span></em></td>
+                    <td>&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="myStrucFundDiagram"></canvas>
+    </div>
+</div>
+
+<br><br><br>
+
+<table style="width: 100%; height: 118px;" cellspacing="0" cellpadding="0">
+    <thead>
+        <tr style="text-align: left;"><th colspan="2"> </th>
+            <td><strong>Количество</strong></td>
+            <td><strong>Доля в портфолио</strong></td>
+            <td><strong>Стоимость</strong></td>
+            <td><strong>Цена</strong></td>
+            <td><strong>За 24 часа</strong></td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th><div><img src="images/fundpictures/currencyicons/btc.png" alt="Bitcoin" width="40" height="40" /></div></th>
+            <td>Bitcoin</td>
+            <td id="Bitcoin.amount"> </td>
+            <td id="Bitcoin.portion"> </td>
+            <td id="Bitcoin.valueUSD"> </td>
+            <td id="Bitcoin.priceUSD"> </td>
+            <td id="Bitcoin.change24h"> </td>
+        </tr>
+        <tr>
+            <th><div><img src="images/fundpictures/currencyicons/eth.png" alt="Ethereum" width="40" height="40" /></div></th>
+            <td>Ethereum</td>
+            <td id="Ethereum.amount"> </td>
+            <td id="Ethereum.portion"> </td>
+            <td id="Ethereum.valueUSD"> </td>
+            <td id="Ethereum.priceUSD"> </td>
+            <td id="Ethereum.change24h"> </td>
+        </tr>
+        <tr>
+            <th><div><img src="images/fundpictures/currencyicons/zec.png" alt="Zcash" width="40" height="40" /></div></th>
+            <td>Zcash</td>
+            <td id="Zcash.amount"> </td>
+            <td id="Zcash.portion"> </td>
+            <td id="Zcash.valueUSD"> </td>
+            <td id="Zcash.priceUSD"> </td>
+            <td id="Zcash.change24h"> </td>
+        </tr>
+        <tr>
+            <th><div><img src="images/fundpictures/currencyicons/eos.png" alt="Zcash" width="40" height="40" /></div></th>
+            <td>EOS</td>
+            <td id="EOS.amount"> </td>
+            <td id="EOS.portion"> </td>
+            <td id="EOS.valueUSD"> </td>
+            <td id="EOS.priceUSD"> </td>
+            <td id="EOS.change24h"> </td>
+        </tr>
+        <tr>
+            <th><div><img src="images/fundpictures/currencyicons/xrp.png" alt="Zcash" width="40" height="40" /></div></th>
+            <td>XRP</td>
+            <td id="XRP.amount"> </td>
+            <td id="XRP.portion"> </td>
+            <td id="XRP.valueUSD"> </td>
+            <td id="XRP.priceUSD"> </td>
+            <td id="XRP.change24h"> </td>
+        </tr>
+        <tr>
+            <th><div><img src="images/fundpictures/currencyicons/iota.png" alt="Zcash" width="40" height="40" /></div></th>
+            <td>IOTA</td>
+            <td id="IOTA.amount"> </td>
+            <td id="IOTA.portion"> </td>
+            <td id="IOTA.valueUSD"> </td>
+            <td id="IOTA.priceUSD"> </td>
+            <td id="IOTA.change24h"> </td>
+        </tr>
+    </tbody>
+</table>
+
+<br><br><br>
+
+<h3>Места хранения активов</h3>
+    
+<p>
+    Bitcoin: <a href="https://blockchain.info/address/1LVWfAyHY2Q9XknTzmwkccFib3Q4zfF85X" target="_blank" rel="nofollow noopener">1LVWfAyHY2Q9XknTzmwkccFib3Q4zfF85X</a>
+    <br>
+    Ethereum: <a href="https://etherscan.io/address/0x952c1060132dc91c0815c7576bb30096949caea2" target="_blank" rel="nofollow noopener">0x952c1060132dc91c0815c7576bB30096949caea2</a>
+    <br>
+    Zcash: <a href="https://zcash.blockexplorer.com/address/t1Lw1rbPJxBX4ZzSJzRKz8gkoS3BH8KsZej" target="_blank" rel="nofollow noopener">t1Lw1rbPJxBX4ZzSJzRKz8gkoS3BH8KsZej</a>
+</p>
+
+
+
+
+
+<script type="text/javascript">
+    
+    
+    
+			
+//---------------ФУНКЦІЯ ВИВОДУ ДІАГРАМИ---------------------------
+  
+function fShowDiagram(myFund){
+    var ctx = document.getElementById("myStrucFundDiagram").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ["Bitcoin", "Ethereum", "Zcash", "EOS", "XRP", "IOTA"],
+            datasets: [{
+                //label: '# dfgdfg',
+                data: [myFund.Bitcoin.valueUSD, myFund.Ethereum.valueUSD, myFund.Zcash.valueUSD, myFund.EOS.valueUSD, myFund.XRP.valueUSD, myFund.EOS.valueUSD],
+                backgroundColor: [
+                    'rgba(255, 153, 51, 1)',
+                    'rgba(0, 73, 109, 1)',
+                    'rgba(255, 204, 102, 1)',
+                    'rgba(0, 0, 0, 1)',
+                    'rgba(18, 119, 168, 1)',
+                    'rgba(22, 116, 0, 1)'
+                ],
+                borderColor: [
+                    'rgba(255, 153, 51, 1)',
+                    'rgba(0, 73, 109, 1)',
+                    'rgba(255, 204, 102, 1)',
+                    'rgba(0, 0, 0, 1)',
+                    'rgba(18, 119, 168, 1)',
+                    'rgba(22, 116, 0, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            
+        }
+    });
+};
+    
+
+
+
+//--------------ФУНКЦЦІЯ ЗАПИТУ ДАНИХ ПО API-----------------------
+
+ function fGetAPIFundData(){
+     var Zapros = new XMLHttpRequest();  
+    
+    Zapros.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            
+            var allTextData=this.responseText;    
+            var myObj = JSON.parse(allTextData);
+            //console.log(myObj);
+            
+            //ФУНКЦІЯ ВИВОДУ ЕКВІВАЛЕНТА БАЛАНСУ У ДОЛАРАХ
+            fAddUSDEcvivalent(myObj.cdcTokenPrice);
+            
+            //ФУНКЦІЯ ВИВОДУ ОСНОВНИХ ДАНИХ ПРО ФОНД
+            fShowFundMainData(myObj);
+            
+            //ФУНКЦІЯ ВИВОДУ ДЕТАЛЬНИ ДАНИХ ПО СТРУКТУРІ ФОНДУ
+            fShowFundDetailsData(myObj);
+            
+            //ФУНКЦІЯ ВИВОДУ Діаграми
+            fShowDiagram(myObj);
+            
+            
+            }
+        };
+        
+    var APIAdress = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQXFf4mdtFwiphcqUpQRH9DAjn6c1Qll8yilxKJAxUPf5kDWozE1yZzfajlxCNASJcWO9fxINg98G8/pub?gid=221700532&single=true&output=tsv";
+    
+    Zapros.open("GET", APIAdress, true);
+        
+    Zapros.send();
+ };
+    
+
+     
+    
+//--------------ФУНКЦІЯ ВИВОДУ ЕКВІВАЛЕНТА БАЛАНСУ У ДОЛАРАХ------ 
+    
+function fAddUSDEcvivalent(CDCtPrice){
+    
+    var myBalanceUSD;
+    var myCurrBalanceCDCt;
+    
+    myCurrBalanceCDCt=document.getElementById('page-profile').getElementsByClassName("badge badge-info")[0].innerHTML;
+                
+    myBalanceUSD=(myCurrBalanceCDCt*CDCtPrice).toFixed(2);
+    
+    //Виводимо в тезі наступне:
+    document.getElementById('page-profile').getElementsByClassName("badge badge-info")[0].innerHTML=myCurrBalanceCDCt+'  ($ ' + myBalanceUSD + ')';   
+}    
+    
+    
+    
+//--------------ФУНКЦІЯ ВИВОДУ ОСНОВНИХ ДАНИХ ПРО ФОНДУ-----------
+
+ function fShowFundMainData(myFund){
+    
+     //fundCap
+     document.getElementById('fundCap').innerHTML="$"+myFund.fundCap;    
+     
+     //CDCtHistoryGrowth
+     if(myFund.CDCtHistoryGrowth>=0){
+           document.getElementById('CDCtHistoryGrowth').innerHTML="<span style='color: green;'>"+myFund.CDCtHistoryGrowth+"%</span>";
+     }
+     else{
+             document.getElementById('CDCtHistoryGrowth').innerHTML="<span style='color: red;'>"+myFund.CDCtHistoryGrowth+"%</span>";
+     }
+     
+     //cdcTokenIssued
+     document.getElementById('cdcTokenIssued').innerHTML=myFund.cdcTokenIssued;
+     
+     
+     //cdcTokenPrice
+     document.getElementById('cdcTokenPrice').innerHTML="$"+myFund.cdcTokenPrice;
+     
+     //Данные обновлены:     
+     document.getElementById('at').innerHTML="Фонд создан: 16.04.18<br>Данные обновлены:"+myFund.at;
+     
+ }
+    
+
+//--------------ФУНКЦІЯ ВИВОДУ ДЕТАЛЬНИХ ДАНИХ ПО СТРУКТУРІ ФОНДУ----
+
+ function fShowFundDetailsData(myFund){
+     
+     //----------Bitcoin----------
+     document.getElementById('Bitcoin.amount').innerHTML=myFund.Bitcoin.amount;
+     document.getElementById('Bitcoin.portion').innerHTML=myFund.Bitcoin.portion+"%";
+     document.getElementById('Bitcoin.valueUSD').innerHTML="$"+myFund.Bitcoin.valueUSD;
+     document.getElementById('Bitcoin.priceUSD').innerHTML="$"+myFund.Bitcoin.priceUSD;
+     if(myFund.Bitcoin.change24h>=0){
+           document.getElementById('Bitcoin.change24h').innerHTML="<span style='color: green;'>+"+myFund.Bitcoin.change24h+"%</span>";
+     }
+     else{
+             document.getElementById('Bitcoin.change24h').innerHTML="<span style='color: red;'>"+myFund.Bitcoin.change24h+"%</span>";
+     };
+     
+     
+    //----------Ethereum----------
+     document.getElementById('Ethereum.amount').innerHTML=myFund.Ethereum.amount;
+     document.getElementById('Ethereum.portion').innerHTML=myFund.Ethereum.portion+"%";
+     document.getElementById('Ethereum.valueUSD').innerHTML="$"+myFund.Ethereum.valueUSD;
+     document.getElementById('Ethereum.priceUSD').innerHTML="$"+myFund.Ethereum.priceUSD;
+     if(myFund.Ethereum.change24h>=0){
+           document.getElementById('Ethereum.change24h').innerHTML="<span style='color: green;'>+"+myFund.Ethereum.change24h+"%</span>";
+     }
+     else{
+             document.getElementById('Ethereum.change24h').innerHTML="<span style='color: red;'>"+myFund.Ethereum.change24h+"%</span>";
+     };
+     
+     
+    //----------Zcash----------
+     document.getElementById('Zcash.amount').innerHTML=myFund.Zcash.amount;
+     document.getElementById('Zcash.portion').innerHTML=myFund.Zcash.portion+"%";
+     document.getElementById('Zcash.valueUSD').innerHTML="$"+myFund.Zcash.valueUSD;
+     document.getElementById('Zcash.priceUSD').innerHTML="$"+myFund.Zcash.priceUSD;
+     if(myFund.Zcash.change24h>=0){
+           document.getElementById('Zcash.change24h').innerHTML="<span style='color: green;'>+"+myFund.Zcash.change24h+"%</span>";
+     }
+     else{
+             document.getElementById('Zcash.change24h').innerHTML="<span style='color: red;'>"+myFund.Zcash.change24h+"%</span>";
+     };
+
+
+
+    //----------EOS----------
+    document.getElementById('EOS.amount').innerHTML=myFund.EOS.amount;
+     document.getElementById('EOS.portion').innerHTML=myFund.EOS.portion+"%";
+     document.getElementById('EOS.valueUSD').innerHTML="$"+myFund.EOS.valueUSD;
+     document.getElementById('EOS.priceUSD').innerHTML="$"+myFund.EOS.priceUSD;
+     if(myFund.EOS.change24h>=0){
+           document.getElementById('EOS.change24h').innerHTML="<span style='color: green;'>+"+myFund.EOS.change24h+"%</span>";
+     }
+     else{
+             document.getElementById('EOS.change24h').innerHTML="<span style='color: red;'>"+myFund.EOS.change24h+"%</span>";
+     };
+
+
+
+    //----------XRP----------
+    document.getElementById('XRP.amount').innerHTML=myFund.XRP.amount;
+     document.getElementById('XRP.portion').innerHTML=myFund.XRP.portion+"%";
+     document.getElementById('XRP.valueUSD').innerHTML="$"+myFund.XRP.valueUSD;
+     document.getElementById('XRP.priceUSD').innerHTML="$"+myFund.XRP.priceUSD;
+     if(myFund.XRP.change24h>=0){
+           document.getElementById('XRP.change24h').innerHTML="<span style='color: green;'>+"+myFund.XRP.change24h+"%</span>";
+     }
+     else{
+             document.getElementById('XRP.change24h').innerHTML="<span style='color: red;'>"+myFund.XRP.change24h+"%</span>";
+     };
+
+ //----------IOTA----------
+ document.getElementById('IOTA.amount').innerHTML=myFund.XRP.amount;
+     document.getElementById('IOTA.portion').innerHTML=myFund.XRP.portion+"%";
+     document.getElementById('IOTA.valueUSD').innerHTML="$"+myFund.XRP.valueUSD;
+     document.getElementById('IOTA.priceUSD').innerHTML="$"+myFund.XRP.priceUSD;
+     if(myFund.IOTA.change24h>=0){
+           document.getElementById('IOTA.change24h').innerHTML="<span style='color: green;'>+"+myFund.IOTA.change24h+"%</span>";
+     }
+     else{
+             document.getElementById('IOTA.change24h').innerHTML="<span style='color: red;'>"+myFund.IOTA.change24h+"%</span>";
+     };
+
+
+
+ }
+    
+
+    
+//--------------ВИКЛИКИ ФУНКЦІЙ-------------------    
+    
+
+fGetAPIFundData();	
+
+
+
+
+			
+</script>
+
+        
