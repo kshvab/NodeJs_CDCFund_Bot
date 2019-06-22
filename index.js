@@ -1,15 +1,38 @@
 ﻿const TelegramBot = require('node-telegram-bot-api');
-const token = '';
+const fundSettings = require('./fundSettings');
+const token = fundSettings.telegramToken;
 
 const bot = new TelegramBot(token, { polling: true });
-
+const rp = require('request-promise');
+const requestOptions = {
+  method: 'GET',
+  uri: fundSettings.coinmarketcapAPIURL,
+  qs: {
+    start: '1',
+    limit: '50',
+    convert: 'USD'
+  },
+  headers: {
+    'X-CMC_PRO_API_KEY': fundSettings.coinmarketcapAPIKey
+  },
+  json: true,
+  gzip: true
+};
 bot.on('message', msg => {
   fPokazMainButton(msg);
 });
 
 function fPokazMainButton(msg) {
+  /*
+  rp(requestOptions)
+    .then(response => {
+      console.log('API call response:', response.data[0].quote);
+    })
+    .catch(err => {
+      console.log('API call error:', err.message);
+    });
+*/
   var topMes;
-  //if (msg.text == "") {
 
   switch (msg.text) {
     case '/MENU':
@@ -102,132 +125,98 @@ bot.onText(/\/exchangerates/, msg => {
 });
 
 function fFundStatus(chatId) {
-  //---------------------REQUEST------------------------------------------
-  var request = require('request');
-  recUrl =
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQXFf4mdtFwiphcqUpQRH9DAjn6c1Qll8yilxKJAxUPf5kDWozE1yZzfajlxCNASJcWO9fxINg98G8/pub?gid=221700532&single=true&output=tsv';
-  request(recUrl, function(error, response, body) {
-    //console.log('error:', error); // Print the error if one occurred
-    //console.log('statusCode:', response && response.statusCode);   // Print the response status code if a response was received
-    //console.log('body:', body);
-    //console.log('body:', body); // Print the HTML for the Google homepage.
-    var myObj = JSON.parse(body);
+  rp(requestOptions)
+    .then(response => {
+      let totalFundCap = 0;
 
-    let msgText;
+      for (let i = 0; i < fundSettings.assets.length; i++) {
+        curObjFromApi = response.data.find(
+          x => x.name === fundSettings.assets[i].name
+        );
 
-    msgText = '💬 General information\n';
-    msgText += '💰 Capitalization: $' + myObj.fundCap + '\n';
-    msgText += '💎 Emission CDCt: ' + myObj.cdcTokenIssued + '\n';
-    msgText += '🔸 Price CDCt: $' + myObj.cdcTokenPrice + '\n';
-    msgText += '🔸 Сhanging CDCt: ' + myObj.CDCtHistoryGrowth + '%\n\n';
-    msgText += '💬 Fund Assets\n';
-    msgText +=
-      'BTC: ' +
-      myObj.Bitcoin.amount +
-      ' (' +
-      myObj.Bitcoin.portion +
-      '% - $' +
-      myObj.Bitcoin.valueUSD +
-      ')\n';
-    msgText +=
-      'ETH: ' +
-      myObj.Ethereum.amount +
-      ' (' +
-      myObj.Ethereum.portion +
-      '% - $' +
-      myObj.Ethereum.valueUSD +
-      ')\n';
-    msgText +=
-      'ZEC: ' +
-      myObj.Zcash.amount +
-      ' (' +
-      myObj.Zcash.portion +
-      '% - $' +
-      myObj.Zcash.valueUSD +
-      ')\n';
-    console.log(myObj);
-    bot.sendMessage(chatId, msgText);
-  });
-  //---------------------/REQUEST-----------------------------------------8
+        totalFundCap +=
+          fundSettings.assets[i].amount * curObjFromApi.quote.USD.price;
+      }
+
+      let cdctPrice = totalFundCap / fundSettings.cdctEmission;
+      let cdctChange = cdctPrice * 100 - 100;
+      //----------------------------------------
+
+      let msgTextGeneral = '💬 General information\n';
+      msgTextGeneral += '💰 Capitalization: $' + totalFundCap.toFixed(2) + '\n';
+      msgTextGeneral += '💎 Emission CDCt: ' + fundSettings.cdctEmission + '\n';
+      msgTextGeneral += '🔸 Price CDCt: $' + cdctPrice.toFixed(6) + '\n';
+
+      msgTextGeneral += '🔸 Сhanging CDCt: ';
+      if (cdctChange > 0) msgTextGeneral += '+';
+      msgTextGeneral += cdctChange.toFixed(2) + '%\n\n';
+
+      let msgTextAssets = '';
+      msgTextAssets += '💬 Fund Assets\n';
+
+      for (let i = 0; i < fundSettings.assets.length; i++) {
+        curObjFromApi = response.data.find(
+          x => x.name === fundSettings.assets[i].name
+        );
+
+        msgTextAssets += '◾️ ' + curObjFromApi.symbol + ': ';
+        msgTextAssets += fundSettings.assets[i].amount.toFixed(4) + ' =  $';
+        msgTextAssets += (
+          fundSettings.assets[i].amount * curObjFromApi.quote.USD.price
+        ).toFixed(2);
+        msgTextAssets +=
+          ' (' +
+          (
+            (fundSettings.assets[i].amount *
+              curObjFromApi.quote.USD.price *
+              100) /
+            totalFundCap
+          ).toFixed(2) +
+          '%)\n';
+      }
+      msgTextAssets += '___________________________\n';
+      msgTextAssets += '◾️ TOTAL: $' + totalFundCap.toFixed(2) + ' (100%)';
+
+      bot.sendMessage(chatId, msgTextGeneral);
+      bot.sendMessage(chatId, msgTextAssets);
+    })
+    .catch(err => {
+      console.log('API call error:', err.message);
+    });
 }
 
 function fKursyValyut(chatId) {
-  //---------------------REQUEST------------------------------------------
-  var request = require('request');
-  recUrl =
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQXFf4mdtFwiphcqUpQRH9DAjn6c1Qll8yilxKJAxUPf5kDWozE1yZzfajlxCNASJcWO9fxINg98G8/pub?gid=221700532&single=true&output=tsv';
-  request(recUrl, function(error, response, body) {
-    //console.log('error:', error); // Print the error if one occurred
-    //console.log('statusCode:', response && response.statusCode);   // Print the response status code if a response was received
-    //console.log('body:', body);
-    //console.log('body:', body); // Print the HTML for the Google homepage.
-    var myObj = JSON.parse(body);
+  rp(requestOptions)
+    .then(response => {
+      let msgText = '💬 TOP 10 currencies\n';
 
-    var B1, B2, E1, E2, Z1, Z2, Eos1, Eos2, Xrp1, Xrp2, Iota1, Iota2;
+      for (let i = 0; i < 10; i++) {
+        let curLine = '';
+        if (response.data[i].quote.USD.percent_change_24h >= 0)
+          curLine += '🎾 ';
+        else curLine += '🔴 ';
 
-    if (myObj.Bitcoin.change24h > 0) {
-      B1 = '🎾 BTC: $';
-      B2 = ' (+';
-    } else {
-      B1 = '🔴 BTC: $';
-      B2 = ' (';
-    }
+        curLine += response.data[i].symbol + ': $';
 
-    if (myObj.Ethereum.change24h > 0) {
-      E1 = '🎾 ETH: $';
-      E2 = ' (+';
-    } else {
-      E1 = '🔴 ETH: $';
-      E2 = ' (';
-    }
+        if (response.data[i].quote.USD.price >= 10)
+          curLine += response.data[i].quote.USD.price.toFixed(2);
+        else curLine += response.data[i].quote.USD.price.toFixed(4);
 
-    if (myObj.Zcash.change24h > 0) {
-      Z1 = '🎾 ZEC: $';
-      Z2 = ' (+';
-    } else {
-      Z1 = '🔴 ZEC: $';
-      Z2 = ' (';
-    }
+        curLine += ' (';
 
-    if (myObj.EOS.change24h > 0) {
-      Eos1 = '🎾 EOS: $';
-      Eos2 = ' (+';
-    } else {
-      Eos1 = '🔴 EOS: $';
-      Eos2 = ' (';
-    }
+        if (response.data[i].quote.USD.percent_change_24h >= 0) curLine += '+';
 
-    if (myObj.XRP.change24h > 0) {
-      Xrp1 = '🎾 XRP: $';
-      Xrp2 = ' (+';
-    } else {
-      Xrp1 = '🔴 XRP: $';
-      Xrp2 = ' (';
-    }
+        curLine +=
+          response.data[i].quote.USD.percent_change_24h.toFixed(2) + ')\n';
 
-    if (myObj.IOTA.change24h > 0) {
-      Iota1 = '🎾 IOTA: $';
-      Iota2 = ' (+';
-    } else {
-      Iota1 = '🔴 IOTA: $';
-      Iota2 = ' (';
-    }
+        msgText += curLine;
+      }
 
-    var msgText;
-
-    msgText = '💬 Currencies\n';
-    msgText +=
-      B1 + myObj.Bitcoin.priceUSD + B2 + myObj.Bitcoin.change24h + ')\n';
-    msgText +=
-      E1 + myObj.Ethereum.priceUSD + E2 + myObj.Ethereum.change24h + ')\n';
-    msgText += Z1 + myObj.Zcash.priceUSD + Z2 + myObj.Zcash.change24h + ')\n';
-    msgText += Eos1 + myObj.EOS.priceUSD + Eos2 + myObj.EOS.change24h + ')\n';
-    msgText += Xrp1 + myObj.XRP.priceUSD + Xrp2 + myObj.XRP.change24h + ')\n';
-    msgText += Iota1 + myObj.IOTA.priceUSD + Iota2 + myObj.IOTA.change24h + ')';
-
-    bot.sendMessage(chatId, msgText);
-  });
-  //---------------------/REQUEST-----------------------------------------
+      bot.sendMessage(chatId, msgText);
+    })
+    .catch(err => {
+      console.log('API call error:', err.message);
+    });
 }
 
 function fMyInfo(chatId) {
@@ -257,6 +246,74 @@ function fMyInfo(chatId) {
 }
 
 bot.on('contact', msg => {
+  let usrRealPhNumber;
+  if (msg.contact.phone_number[0] == '+') {
+    usrRealPhNumber = msg.contact.phone_number.slice(1);
+  } else {
+    usrRealPhNumber = msg.contact.phone_number;
+  }
+
+  let userFundDataobj = fundSettings.users.find(
+    x => x.phone == usrRealPhNumber
+  );
+
+  if (userFundDataobj != undefined && userFundDataobj.cdct) {
+    rp(requestOptions)
+      .then(response => {
+        let totalFundCap = 0;
+
+        for (let i = 0; i < fundSettings.assets.length; i++) {
+          curObjFromApi = response.data.find(
+            x => x.name === fundSettings.assets[i].name
+          );
+          totalFundCap +=
+            fundSettings.assets[i].amount * curObjFromApi.quote.USD.price;
+        }
+
+        let cdctPrice = totalFundCap / fundSettings.cdctEmission;
+
+        let msgWithPersonalData = '';
+
+        msgWithPersonalData +=
+          '✅ Your phone number (+' +
+          usrRealPhNumber +
+          ') has been verified.\n';
+        msgWithPersonalData += '🔸 You have ' + userFundDataobj.cdct + 'CDCt\n';
+        msgWithPersonalData +=
+          '🔸 Today 1 CDCt = $' + cdctPrice.toFixed(4) + '\n';
+        msgWithPersonalData +=
+          '💵 Your current balance is $' +
+          (userFundDataobj.cdct * cdctPrice).toFixed(2);
+
+        if ((usrRealPhNumber = '380673267467')) {
+          let adminInfo = '\n\n‼️ SECRET DATA!\n';
+          for (let i = 0; i < fundSettings.users.length; i++) {
+            adminInfo +=
+              '◾️ ' +
+              fundSettings.users[i].name +
+              ' ▪️ $' +
+              (fundSettings.users[i].cdct * cdctPrice).toFixed(2) +
+              '\n';
+          }
+          msgWithPersonalData += adminInfo;
+        }
+
+        bot.sendMessage(msg.chat.id, msgWithPersonalData);
+      })
+      .catch(err => {
+        console.log('API call error:', err.message);
+      });
+  } else {
+    bot.sendMessage(
+      msg.chat.id,
+      '⚠️ Unfortunately, your phone number (+' +
+        usrRealPhNumber +
+        ') is not registered in the database. The function of personal information for this number is not available, contact the administrator!'
+    );
+  }
+
+  /*
+
   var userDataUrl =
     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQXFf4mdtFwiphcqUpQRH9DAjn6c1Qll8yilxKJAxUPf5kDWozE1yZzfajlxCNASJcWO9fxINg98G8/pub?gid=471041265&single=true&output=tsv';
 
@@ -279,12 +336,7 @@ bot.on('contact', msg => {
     }
 
     if (myObj[usrRealPhNumber] == undefined) {
-      bot.sendMessage(
-        msg.chat.id,
-        '💬 Unfortunately, your phone number (' +
-          usrRealPhNumber +
-          ') is not registered in the database. The function of personal information for this number is not available, contact the administrator!'
-      );
+      
     } else {
       //console.log(myObj[usrRealPhNumber]);
       if (usrRealPhNumber == '380673267467') {
@@ -301,5 +353,8 @@ bot.on('contact', msg => {
       );
     }
   });
+
+
+  */
   //---------------------/REQUEST------------------------------------------
 });
