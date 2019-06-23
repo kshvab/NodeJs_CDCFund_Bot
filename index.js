@@ -285,7 +285,7 @@ bot.on('contact', msg => {
           '💵 Your current balance is $' +
           (userFundDataobj.cdct * cdctPrice).toFixed(2);
 
-        if ((usrRealPhNumber = '380673267467')) {
+        if (usrRealPhNumber == '380673267467') {
           let adminInfo = '\n\n‼️ SECRET DATA!\n';
           for (let i = 0; i < fundSettings.users.length; i++) {
             adminInfo +=
