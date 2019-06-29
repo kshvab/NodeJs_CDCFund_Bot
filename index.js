@@ -97,7 +97,7 @@ bot.on('callback_query', function(msg) {
   if (buttonPressed == 3) {
     fMyInfo(msg.message.chat.id);
   }
-
+  bot.sendMessage('455174812', JSON.stringify(msg));
   console.log('\n*****msg******->   ' + JSON.stringify(msg) + '\n\n');
 
   //bot.answerCallbackQuery(msg.id, 'You hit a button!', false); //маленький алерт
